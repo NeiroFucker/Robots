@@ -17,7 +17,7 @@ public class Main
         } catch (Exception e) { e.printStackTrace(System.out); }
 
         SwingUtilities.invokeLater(() -> {
-            MainApplicationFrame frame = new MainApplicationFrame();
+            MainApplicationFrame frame = AppLoader.deserializeApp();
             frame.pack(); frame.setVisible(true);
             frame.setExtendedState(Frame.MAXIMIZED_BOTH);}
         );

@@ -1,17 +1,20 @@
-package org.robotsteam.gui;
+package org.robotsteam.gui.elements;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.TextArea;
+import java.beans.PropertyVetoException;
+import java.io.Serializable;
 
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
+import org.robotsteam.gui.states.FrameState;
 import org.robotsteam.log.LogChangeListener;
 import org.robotsteam.log.LogEntry;
 import org.robotsteam.log.LogWindowSource;
 
-public class LogWindow extends JInternalFrame implements LogChangeListener {
+public class LogWindow extends JInternalFrame implements LogChangeListener, Serializable {
     private final TextArea logContent;
     private final LogWindowSource logSource;
 
@@ -26,6 +29,16 @@ public class LogWindow extends JInternalFrame implements LogChangeListener {
         panel.add(logContent, BorderLayout.CENTER);
         getContentPane().add(panel);
         pack(); updateLogContent();
+    }
+
+    public LogWindow(LogWindowSource logSource, FrameState state) {
+        this(logSource);
+
+        this.setSize(state.getSize());
+        this.setLocation(state.getLocation());
+
+        try { this.setIcon(state.getMinimized()); }
+        catch (PropertyVetoException e) { e.printStackTrace(System.out); }
     }
 
     private void updateLogContent() {

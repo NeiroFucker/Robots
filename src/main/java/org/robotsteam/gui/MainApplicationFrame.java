@@ -3,27 +3,33 @@ package org.robotsteam.gui;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.Serializable;
 
 import javax.swing.*;
 
+import org.robotsteam.gui.elements.GameWindow;
+import org.robotsteam.gui.elements.LogWindow;
+import org.robotsteam.gui.elements.MenuBar;
+import org.robotsteam.AppLoader;
+import org.robotsteam.gui.states.AppState;
+import org.robotsteam.gui.states.FrameState;
 import org.robotsteam.log.Logger;
 
-public class MainApplicationFrame extends JFrame {
+public class MainApplicationFrame extends JFrame implements Serializable {
+    private final LogWindow logWindow;
+    private final GameWindow gameWindow;
     private final JDesktopPane desktopPane = new JDesktopPane();
-    
-    public MainApplicationFrame() {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
+    private MainApplicationFrame(FrameState logWindowState, FrameState gameWindowState) {
         int inset = 50;
-        setBounds(inset, inset,
-            screenSize.width - 2*inset,
-            screenSize.height - 2*inset
-        );
+        this.setLocation(new Point(inset, inset));
+        this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+
+        logWindow = initLogWindow(logWindowState);
+        gameWindow = new GameWindow(gameWindowState);
+        addWindow(logWindow); addWindow(gameWindow);
 
         setContentPane(desktopPane);
-
-        addWindow(initLogWindow());
-        addWindow(initGameWindow());
 
         setJMenuBar(new MenuBar(this));
         addWindowListener(new WindowAdapter() {
@@ -35,33 +41,35 @@ public class MainApplicationFrame extends JFrame {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
 
+    public MainApplicationFrame() {
+        this(
+                new FrameState(new Dimension(300, 800), new Point(10,10), false),
+                new FrameState(new Dimension(400,  400), new Point(300, 100), false)
+        );
+    }
+
+    public MainApplicationFrame(AppState state) {
+        this(state.getLogWindowState(), state.getGameWindowState());
+    }
+
     public void confirmWindowClose() {
         if (JOptionPane.showConfirmDialog(this,
                 "Вы действительно хотите закрыть приложение?", "Закрыть?",
                 JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE
-        ) == JOptionPane.YES_OPTION) { System.exit(0); }
+        ) == JOptionPane.YES_OPTION) { AppLoader.serializeApp(dumpState()); System.exit(0); }
     }
 
-    protected LogWindow initLogWindow() {
-        LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
+    private AppState dumpState() {
+        return new AppState(gameWindow, logWindow);
+    }
 
-        logWindow.setLocation(10,10);
-        logWindow.setSize(300, 800);
+    protected LogWindow initLogWindow(FrameState state) {
+        LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource(), state);
 
-        setMinimumSize(logWindow.getSize());
-        logWindow.pack();
         Logger.debug("Протокол работает");
+        setMinimumSize(logWindow.getSize()); logWindow.pack();
 
         return logWindow;
-    }
-
-    protected GameWindow initGameWindow() {
-        GameWindow gameWindow = new GameWindow();
-
-        gameWindow.setLocation(300, 100);
-        gameWindow.setSize(400,  400);
-
-        return gameWindow;
     }
 
     protected void addWindow(JInternalFrame frame) {

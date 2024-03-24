@@ -1,5 +1,6 @@
-package org.robotsteam.gui;
+package org.robotsteam.gui.elements;
 
+import org.robotsteam.gui.MainApplicationFrame;
 import org.robotsteam.log.Logger;
 
 import javax.swing.*;
