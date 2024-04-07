@@ -11,6 +11,7 @@ import org.robotsteam.gui.elements.GameWindow;
 import org.robotsteam.gui.elements.LogWindow;
 import org.robotsteam.gui.elements.MenuBar;
 import org.robotsteam.AppLoader;
+import org.robotsteam.gui.elements.StateWindow;
 import org.robotsteam.gui.states.AppState;
 import org.robotsteam.gui.states.FrameState;
 import org.robotsteam.log.Logger;
@@ -20,9 +21,10 @@ import org.robotsteam.model.Robot;
 public class MainApplicationFrame extends JFrame implements Serializable {
     private final LogWindow logWindow;
     private final GameWindow gameWindow;
+    private final StateWindow stateWindow;
     private final JDesktopPane desktopPane = new JDesktopPane();
 
-    private MainApplicationFrame(FrameState logWindowState, FrameState gameWindowState) {
+    private MainApplicationFrame(FrameState logWindowState, FrameState gameWindowState, FrameState stateWindowState) {
         int inset = 50;
         this.setLocation(new Point(inset, inset));
         this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
@@ -31,7 +33,8 @@ public class MainApplicationFrame extends JFrame implements Serializable {
 
         logWindow = initLogWindow(logWindowState);
         gameWindow = new GameWindow(gameWindowState, robot);
-        addWindow(logWindow); addWindow(gameWindow);
+        stateWindow = new StateWindow(stateWindowState, robot);
+        addWindow(logWindow); addWindow(gameWindow); addWindow(stateWindow);
 
         setContentPane(desktopPane);
 
@@ -48,12 +51,13 @@ public class MainApplicationFrame extends JFrame implements Serializable {
     public MainApplicationFrame() {
         this(
                 new FrameState(new Dimension(300, 800), new Point(10,10), false),
-                new FrameState(new Dimension(400,  400), new Point(300, 100), false)
+                new FrameState(new Dimension(400,  400), new Point(300, 100), false),
+                new FrameState(new Dimension(220, 65), new Point(800, 100), false)
         );
     }
 
     public MainApplicationFrame(AppState state) {
-        this(state.getLogWindowState(), state.getGameWindowState());
+        this(state.getLogWindowState(), state.getGameWindowState(), state.getStateWindowState());
     }
 
     public void confirmWindowClose() {
@@ -64,7 +68,7 @@ public class MainApplicationFrame extends JFrame implements Serializable {
     }
 
     private AppState dumpState() {
-        return new AppState(gameWindow, logWindow);
+        return new AppState(gameWindow, logWindow, stateWindow);
     }
 
     protected LogWindow initLogWindow(FrameState state) {

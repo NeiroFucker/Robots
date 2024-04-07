@@ -12,7 +12,10 @@ import javax.swing.JPanel;
 import org.robotsteam.model.Robot;
 
 public class GameWindow extends JInternalFrame implements Serializable {
-    private final GameVisualizer m_visualizer;
+    private GameVisualizer m_visualizer;
+
+    public GameWindow() { }
+
     public GameWindow(Robot robot) {
         super("Игровое поле", true, true, true, true);
         m_visualizer = new GameVisualizer(robot);

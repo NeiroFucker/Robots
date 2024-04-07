@@ -15,8 +15,10 @@ import org.robotsteam.log.LogEntry;
 import org.robotsteam.log.LogWindowSource;
 
 public class LogWindow extends JInternalFrame implements LogChangeListener, Serializable {
-    private final TextArea logContent;
-    private final LogWindowSource logSource;
+    private TextArea logContent;
+    private LogWindowSource logSource;
+
+    public LogWindow() { }
 
     public LogWindow(LogWindowSource logSource) {
         super("Протокол работы", true, true, true, true);
