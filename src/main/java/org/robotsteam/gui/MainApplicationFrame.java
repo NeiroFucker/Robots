@@ -15,6 +15,8 @@ import org.robotsteam.gui.states.AppState;
 import org.robotsteam.gui.states.FrameState;
 import org.robotsteam.log.Logger;
 
+import org.robotsteam.model.Robot;
+
 public class MainApplicationFrame extends JFrame implements Serializable {
     private final LogWindow logWindow;
     private final GameWindow gameWindow;
@@ -25,8 +27,10 @@ public class MainApplicationFrame extends JFrame implements Serializable {
         this.setLocation(new Point(inset, inset));
         this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 
+        Robot robot = new Robot(10, 10);
+
         logWindow = initLogWindow(logWindowState);
-        gameWindow = new GameWindow(gameWindowState);
+        gameWindow = new GameWindow(gameWindowState, robot);
         addWindow(logWindow); addWindow(gameWindow);
 
         setContentPane(desktopPane);

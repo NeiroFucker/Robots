@@ -17,6 +17,16 @@ public class Robot extends Observable {
         m_robotPositionY = y;
     }
 
+    public double getM_robotPositionX() {
+        return m_robotPositionX;
+    }
+    public double getM_robotPositionY() {
+        return m_robotPositionY;
+    }
+    public double getM_robotDirection() {
+        return m_robotDirection;
+    }
+
     public void update(double m_targetPositionX, double m_targetPositionY) {
         double distance = distance(m_targetPositionX, m_targetPositionY, m_robotPositionX, m_robotPositionY);
 
@@ -34,7 +44,7 @@ public class Robot extends Observable {
         }
 
         moveRobot(maxVelocity, angularVelocity, 10);
-        notifyObservers(ROBOT_MOVED);
+        setChanged(); notifyObservers(ROBOT_MOVED); clearChanged();
     }
 
     private void moveRobot(double velocity, double angularVelocity, double duration) {
