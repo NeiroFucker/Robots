@@ -1,5 +1,8 @@
 package org.robotsteam.gui.elements;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
@@ -13,16 +16,12 @@ import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
-public class GameVisualizer extends JPanel {
+public class GameVisualizer extends JPanel implements Observer {
     private final Timer m_timer = initTimer();
     
     private static Timer initTimer() {
         return new Timer("events generator", true);
     }
-    
-    private volatile double m_robotPositionX = 100;
-    private volatile double m_robotPositionY = 100; 
-    private volatile double m_robotDirection = 0; 
 
     private volatile int m_targetPositionX = 150;
     private volatile int m_targetPositionY = 100;
@@ -69,6 +68,11 @@ public class GameVisualizer extends JPanel {
         
         return asNormalizedRadians(Math.atan2(diffY, diffX));
     }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        onModelUpdateEvent();
+    }
     
     protected void onModelUpdateEvent() {
         double distance = distance(m_targetPositionX, m_targetPositionY, 
@@ -90,35 +94,6 @@ public class GameVisualizer extends JPanel {
         }
         
         moveRobot(velocity, angularVelocity, 10);
-    }
-    
-    private static double applyLimits(double value, double min, double max) {
-        if (value < min)
-            return min;
-        return Math.min(value, max);
-    }
-    
-    private void moveRobot(double velocity, double angularVelocity, double duration) {
-        velocity = applyLimits(velocity, 0, maxVelocity);
-        angularVelocity = applyLimits(angularVelocity, -maxAngularVelocity, maxAngularVelocity);
-        double newX = m_robotPositionX + velocity / angularVelocity * 
-            (Math.sin(m_robotDirection  + angularVelocity * duration) -
-                Math.sin(m_robotDirection));
-        if (!Double.isFinite(newX))
-        {
-            newX = m_robotPositionX + velocity * duration * Math.cos(m_robotDirection);
-        }
-        double newY = m_robotPositionY - velocity / angularVelocity * 
-            (Math.cos(m_robotDirection  + angularVelocity * duration) -
-                Math.cos(m_robotDirection));
-        if (!Double.isFinite(newY))
-        {
-            newY = m_robotPositionY + velocity * duration * Math.sin(m_robotDirection);
-        }
-        m_robotPositionX = newX;
-        m_robotPositionY = newY;
-        double newDirection = asNormalizedRadians(m_robotDirection + angularVelocity * duration);
-        m_robotDirection = newDirection;
     }
 
     private static double asNormalizedRadians(double angle) {
