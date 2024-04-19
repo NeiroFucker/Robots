@@ -1,26 +1,27 @@
 package org.robotsteam.model;
 
+import java.awt.geom.Point2D;
 
 public class RobotMath {
     static final double maxVelocity = 0.1;
     static final double maxAngularVelocity = 0.001;
     private static final double maxDeviation = maxVelocity / maxAngularVelocity;
 
-    public static double countAngularVelocity(double curX, double curY, double targetX, double targetY, double direction) {
+    public static double countAngularVelocity(Point2D cur, Point2D target, double direction) {
         double result = 0;
-        double angleToTarget = angleTo(curX, curY, targetX, targetY);
+        double angleToTarget = angleTo(cur, target);
         double delta = asNormalizedRadians(angleToTarget - direction);
 
         if (delta < Math.PI) result = maxAngularVelocity;
         if (delta > Math.PI) result = -maxAngularVelocity;
-        if (canNotReachTarget(curX, curY, targetX, targetY, direction)) result = 0;
+        if (canNotReachTarget(cur, target, direction)) result = 0;
 
         return result;
     }
 
-    private static boolean canNotReachTarget(double curX, double curY, double targetX, double targetY, double direction) {
-        double dx = targetX - curX;
-        double dy = targetY - curY;
+    private static boolean canNotReachTarget(Point2D cur, Point2D target, double direction) {
+        double dx = target.getX() - cur.getX();
+        double dy = target.getY() - cur.getY();
 
         double newDx = Math.cos(direction) * dx + Math.sin(direction) * dy;
         double newDY = Math.cos(direction) * dy - Math.sin(direction) * dx;
@@ -50,9 +51,9 @@ public class RobotMath {
         return Math.sqrt(diffX * diffX + diffY * diffY);
     }
 
-    public static double angleTo(double fromX, double fromY, double toX, double toY) {
-        double diffX = toX - fromX;
-        double diffY = toY - fromY;
+    public static double angleTo(Point2D from, Point2D target) {
+        double diffX = target.getX() - from.getX();
+        double diffY = target.getY() - from.getY();
 
         return asNormalizedRadians(Math.atan2(diffY, diffX));
     }

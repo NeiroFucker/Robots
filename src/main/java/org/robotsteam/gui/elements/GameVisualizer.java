@@ -9,7 +9,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -26,9 +26,7 @@ public class GameVisualizer extends JPanel implements Observer {
     }
 
     private Robot robot;
-
-    private volatile int m_targetPositionX = 150;
-    private volatile int m_targetPositionY = 150;
+    private volatile Point2D target = new Point2D.Double(150, 150);
 
     private volatile double m_robotPositionX = 0;
     private volatile double m_robotPositionY = 0;
@@ -41,7 +39,7 @@ public class GameVisualizer extends JPanel implements Observer {
         }, 0, 50);
         m_timer.schedule(new TimerTask() {
             @Override
-            public void run() { robot.update(m_targetPositionX, m_targetPositionY); }
+            public void run() { robot.update(target); }
         }, 0, 10);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -53,9 +51,8 @@ public class GameVisualizer extends JPanel implements Observer {
         this.robot = robot; robot.addObserver(this);
     }
 
-    protected void setTargetPosition(Point p) {
-        m_targetPositionX = p.x;
-        m_targetPositionY = p.y;
+    protected void setTargetPosition(Point2D p) {
+        target = p;
     }
     
     protected void onRedrawEvent() {
@@ -82,7 +79,7 @@ public class GameVisualizer extends JPanel implements Observer {
         super.paint(g);
         Graphics2D g2d = (Graphics2D)g; 
         drawRobot(g2d, round(m_robotPositionX), round(m_robotPositionY), m_robotDirection);
-        drawTarget(g2d, m_targetPositionX, m_targetPositionY);
+        drawTarget(g2d, round(target.getX()), round(target.getY()));
     }
     
     private static void fillOval(Graphics g, int centerX, int centerY, int diam1, int diam2) {
