@@ -1,8 +1,10 @@
 package org.robotsteam.model;
 
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Observable;
 import static org.robotsteam.model.RobotMath.*;
+import static org.robotsteam.model.RobotMath.asNormalizedRadians;
 
 public class Robot extends Observable {
     private final RobotState robot;
@@ -24,11 +26,11 @@ public class Robot extends Observable {
         return robot.getDirection();
     }
 
-    public void update(Point2D target) {
+    public void update(Point2D target, Dimension bounds) {
         if (robot.getPosition().distance(target) < 0.5) return;
 
-        double angularVelocity = countAngularVelocity(robot.getPosition(), target, robot.getDirection());
-        moveRobot(maxVelocity, angularVelocity, 10);
+        double angularVelocity = countAngularVelocity(target, robot);
+        moveRobot(maxVelocity, angularVelocity, 10, bounds);
         setChanged(); notifyObservers(ROBOT_MOVED); clearChanged();
     }
 
@@ -36,23 +38,25 @@ public class Robot extends Observable {
         return robot.info();
     }
 
-    private void moveRobot(double velocity, double angularVel, double duration) {
+    private void moveRobot(double velocity, double angularVel, double t, Dimension bounds) {
         velocity = applyLimits(velocity, 0, maxVelocity);
         angularVel = applyLimits(angularVel, -maxAngularVelocity, maxAngularVelocity);
 
-        double newX = robot.getX() + velocity / angularVel *
-                (Math.sin(robot.getDirection() + angularVel * duration) - Math.sin(robot.getDirection()));
-        if (!Double.isFinite(newX)) {
-            newX = robot.getX() + velocity * duration * Math.cos(robot.getDirection());
+        double newDirection = robot.getDirection() + angularVel * t;
+        Point2D newPos = countNewPosition(robot, velocity, angularVel, t);
+
+        robot.setPosition(newPos); robot.setDirection(applyBounds(bounds, newDirection));
+    }
+
+    private double applyBounds(Dimension bounds, double direction) {
+        if (robot.getX() < 0 || robot.getX() > bounds.width) {
+            return asNormalizedRadians(Math.PI - direction);
         }
 
-        double newY = robot.getY() - velocity / angularVel *
-                (Math.cos(robot.getDirection()  + angularVel * duration) - Math.cos(robot.getDirection()));
-        if (!Double.isFinite(newY)) {
-            newY = robot.getY() + velocity * duration * Math.sin(robot.getDirection());
+        if (robot.getY() < 0 || robot.getY() > bounds.height) {
+            return asNormalizedRadians(-direction);
         }
 
-        robot.setPosition(newX, newY);
-        robot.setDirection(asNormalizedRadians(robot.getDirection() + angularVel * duration));
+        return direction;
     }
 }

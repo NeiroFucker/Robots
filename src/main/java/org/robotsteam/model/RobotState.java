@@ -24,8 +24,8 @@ public class RobotState {
     public void setDirection(double direction) {
         this.direction = direction;
     }
-    public void setPosition(double x, double y) {
-        this.position.setLocation(x, y);
+    public void setPosition(Point2D position) {
+        this.position.setLocation(position.getX(), position.getY());
     }
 
     public String info() {

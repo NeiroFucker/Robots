@@ -39,7 +39,7 @@ public class GameVisualizer extends JPanel implements Observer {
         }, 0, 50);
         m_timer.schedule(new TimerTask() {
             @Override
-            public void run() { robot.update(target); }
+            public void run() { robot.update(target, GameVisualizer.this.getSize()); }
         }, 0, 10);
         addMouseListener(new MouseAdapter() {
             @Override
