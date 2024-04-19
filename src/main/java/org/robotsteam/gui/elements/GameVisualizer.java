@@ -28,7 +28,7 @@ public class GameVisualizer extends JPanel implements Observer {
     private Robot robot;
 
     private volatile int m_targetPositionX = 150;
-    private volatile int m_targetPositionY = 100;
+    private volatile int m_targetPositionY = 150;
 
     private volatile double m_robotPositionX = 0;
     private volatile double m_robotPositionY = 0;
