@@ -1,65 +1,58 @@
 package org.robotsteam.model;
 
-import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.Observable;
 import static org.robotsteam.model.RobotMath.*;
 
 public class Robot extends Observable {
-    private final Point2D position;
-    private volatile double m_robotDirection = 0;
+    private final RobotState robot;
 
     public static final String ROBOT_MOVED = "robot moved";
 
     public Robot(int x, int y) {
         super();
-        position = new Point2D.Double(x, y);
+        robot = new RobotState(x, y);
     }
 
     public double getM_robotPositionX() {
-        return position.getX();
+        return robot.getX();
     }
     public double getM_robotPositionY() {
-        return position.getY();
+        return robot.getY();
     }
     public double getM_robotDirection() {
-        return m_robotDirection;
+        return robot.getDirection();
     }
 
     public void update(Point2D target) {
-        if (position.distance(target) < 0.5) return;
+        if (robot.getPosition().distance(target) < 0.5) return;
 
-        double angularVelocity = countAngularVelocity(position, target, m_robotDirection);
+        double angularVelocity = countAngularVelocity(robot.getPosition(), target, robot.getDirection());
         moveRobot(maxVelocity, angularVelocity, 10);
         setChanged(); notifyObservers(ROBOT_MOVED); clearChanged();
     }
 
     public String info() {
-        return String.format(
-                "Position: (%f, %f) | Direction: %f",
-                position.getX(), position.getY(), m_robotDirection
-        );
+        return robot.info();
     }
 
-    private void moveRobot(double velocity, double angularVelocity, double duration) {
+    private void moveRobot(double velocity, double angularVel, double duration) {
         velocity = applyLimits(velocity, 0, maxVelocity);
-        angularVelocity = applyLimits(angularVelocity, -maxAngularVelocity, maxAngularVelocity);
+        angularVel = applyLimits(angularVel, -maxAngularVelocity, maxAngularVelocity);
 
-        double newX = position.getX() + velocity / angularVelocity *
-                (Math.sin(m_robotDirection + angularVelocity * duration) - Math.sin(m_robotDirection));
-
+        double newX = robot.getX() + velocity / angularVel *
+                (Math.sin(robot.getDirection() + angularVel * duration) - Math.sin(robot.getDirection()));
         if (!Double.isFinite(newX)) {
-            newX = position.getX() + velocity * duration * Math.cos(m_robotDirection);
+            newX = robot.getX() + velocity * duration * Math.cos(robot.getDirection());
         }
 
-        double newY = position.getY() - velocity / angularVelocity *
-                (Math.cos(m_robotDirection  + angularVelocity * duration) - Math.cos(m_robotDirection));
+        double newY = robot.getY() - velocity / angularVel *
+                (Math.cos(robot.getDirection()  + angularVel * duration) - Math.cos(robot.getDirection()));
         if (!Double.isFinite(newY)) {
-            newY = position.getY() + velocity * duration * Math.sin(m_robotDirection);
+            newY = robot.getY() + velocity * duration * Math.sin(robot.getDirection());
         }
 
-        position.setLocation(newX, newY);
-        double newDirection = asNormalizedRadians(m_robotDirection + angularVelocity * duration);
-        m_robotDirection = newDirection;
+        robot.setPosition(newX, newY);
+        robot.setDirection(asNormalizedRadians(robot.getDirection() + angularVel * duration));
     }
 }
